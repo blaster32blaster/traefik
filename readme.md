@@ -6,7 +6,7 @@ Navigate to Docker - https://docs.docker.com/docker-for-windows/install/
 
 ## 2 : Clone Docker Traefik Repository
 
-    ### Clone and start traefik
+### Clone and start traefik
 
     - git clone https://github.com/blaster32blaster/traefik
     - cd into Traefik directory
@@ -14,17 +14,21 @@ Navigate to Docker - https://docs.docker.com/docker-for-windows/install/
 
 ## 3 : Create Docker Network
 
-   run command : docker create network traefik_webgateway - this is to allow the containers to communicate, if this gets removed, recreate it.
+    - run command : docker create network traefik_webgateway 
+    - this is to allow the containers to communicate, if this gets removed, recreate it.
 
-## 3 : Setup Docker for Repositories
+## 4 : Setup Docker for Repositories
 
-    navigate to repo, run command : docker-compose up
+    - if docker-compose.yml is missing in root directory, it must be created before docker will work
+    - if docker-compose.yml is in place -
+      - navigate to repo
+      - run command : docker-compose up / docker-compose up -d
 
-## 4 : TBA - setup something to resolve host names
+## 5 : setup something to resolve host names
 
     this should work as long as the repositiories are named *.localhost
 
-## 5 : @Todo
+## 6 : @Todo
 
     -   add ssl here and to other repos
     -   work out the Oracle database requirements
