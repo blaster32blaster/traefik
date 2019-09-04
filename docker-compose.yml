@@ -4,9 +4,7 @@ services:
   reverse-proxy:
     image: traefik
     container_name: traefik
-    command: --api --docker --logLevel=INFO
-    # command: --api --docker --defaultentrypoints=http,https --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS:/ssl/localhost.crt,/ssl/localhost.key.pem'
-   
+    command: --api --docker --logLevel=INFO   
     ports:
       - "80:80"
       - "443:443"
@@ -15,11 +13,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # - ./traefik.toml:/etc/traefik/traefik.toml
       - /dev/null:/traefik.toml
-      # - ./ssl:/ssl
     networks:
       - traefik_webgateway
     restart:
       always
+  whoami:
+    image: containous/whoami # A container that exposes an API to show its IP address
+    labels:
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+    networks:
+      - traefik_webgateway
 networks:
   traefik_webgateway:
     external: true
