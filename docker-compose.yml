@@ -1,0 +1,25 @@
+# working - were going to want to set up ssl here
+version: '3.0'
+services:
+  reverse-proxy:
+    image: traefik
+    container_name: traefik
+    command: --api --docker --logLevel=INFO
+    # command: --api --docker --defaultentrypoints=http,https --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS:/ssl/localhost.crt,/ssl/localhost.key.pem'
+   
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - ./traefik.toml:/etc/traefik/traefik.toml
+      - /dev/null:/traefik.toml
+      # - ./ssl:/ssl
+    networks:
+      - traefik_webgateway
+    restart:
+      always
+networks:
+  traefik_webgateway:
+    external: true

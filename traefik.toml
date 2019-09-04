@@ -1,0 +1,89 @@
+debug = true
+logLevel = "INFO"
+
+[traefikLog]
+  filePath = "./traefik.log"
+  format   = "json"
+
+defaultEntryPoints = ["http", "https"]
+[web]
+address = ":8080"
+  [web.auth.basic]
+  users = ["admin:your_encrypted_password"]
+
+  [entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[acme]
+    email = "your_email@example.com"
+    storage = "acme.json"
+    entryPoint = "https"
+    onHostRule = true
+    onDemand = false
+
+# this is the one i have put together
+# debug = true
+
+# logLevel = "DEBUG"
+# defaultEntryPoints = ["https","http"]
+
+# [entryPoints]
+#   [entryPoints.http]
+#   address = ":80"
+#     [entryPoints.http.redirect]
+#     entryPoint = "https"
+#   [entryPoints.https]
+#   address = ":443"
+#   [entryPoints.https.tls]
+
+# [retry]
+
+# [docker]
+# exposedByDefault = false
+
+# [acme]
+# email = "admin@example.com"
+# storage = "acme/certs.json"
+# entryPoint = "https"
+# onHostRule = true
+# [acme.httpChallenge]
+# entryPoint = "http"
+
+# digital ocean
+# defaultEntryPoints = ["http", "https"]
+
+# [entryPoints]
+#   [entryPoints.dashboard]
+#     address = ":8080"
+#     [entryPoints.dashboard.auth]
+#       [entryPoints.dashboard.auth.basic]
+#         users = ["admin:your_encrypted_password"]
+#   [entryPoints.http]
+#     address = ":80"
+#       [entryPoints.http.redirect]
+#         entryPoint = "https"
+#   [entryPoints.https]
+#     address = ":443"
+#       [entryPoints.https.tls]
+
+# [api]
+# entrypoint="dashboard"
+
+# [acme]
+# email = "olaf.broms@asrcfederal.com"
+# storage = "acme.json"
+# entryPoint = "https"
+# onHostRule = true
+#   [acme.httpChallenge]
+#   entryPoint = "http"
+
+# [docker]
+# domain = "asrcfederal.com"
+# watch = true
+# network = "traefik_webgateway"
