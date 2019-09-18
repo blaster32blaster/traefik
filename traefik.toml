@@ -1,29 +1,13 @@
-debug = true
-logLevel = "INFO"
-
-[traefikLog]
-  filePath = "./traefik.log"
-  format   = "json"
-
-defaultEntryPoints = ["http", "https"]
-
-[web]
-address = ":8080"
-  [web.auth.basic]
-  users = ["admin:your_encrypted_password"]
-
-  [entryPoints]
+[entryPoints]
+  [entryPoints.metrics]
+    address = ":8082"
   [entryPoints.http]
-  address = ":80"
-    [entryPoints.http.redirect]
-      entryPoint = "https"
+    address = ":80"
   [entryPoints.https]
-  address = ":443"
-    [entryPoints.https.tls]
+    address = ":443"  
 
-[acme]
-    email = "your_email@example.com"
-    storage = "acme.json"
-    entryPoint = "https"
-    onHostRule = true
-    onDemand = false
+# [metrics]
+#   [metrics.prometheus]
+#     buckets = [0.1,0.3,1.2,5.0]
+#     addServicesLabels = true
+#     addEntryPointsLabels = true
