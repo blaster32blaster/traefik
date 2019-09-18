@@ -5,7 +5,12 @@ services:
     image: traefik:v2.0
     container_name: traefik
     # command: --api --docker --logLevel=INFO   
-    command: --api.insecure=true --providers.docker --log.level=INFO --providers.file.directory=./traefik.toml 
+    command: 
+      - "--api.insecure=true" 
+      - "--providers.docker=true"
+      - "--log.level=INFO"
+      - "--providers.file.directory=./traefik.toml" 
+      - "--entrypoints.web.address=:80"
     # --metrics.prometheus.buckets=[0.1,0.3,1.2,5.0] --metrics.prometheus.entrypoint="metrics"
     ports:
       - "80:80"
@@ -23,8 +28,11 @@ services:
   whoami: # This container is for debugging purposes only, remove before real use
     image: containous/whoami # A container that exposes an API to show its IP address
     labels:
-      - "traefik.http.routers.router0.rule=Host(`whoami.docker.localhost`)"
+      # - "traefik.http.routers.router0.rule=Host(`whoami.docker.localhost`)"
       # - "traefik.frontend.rule=Host:whoami.docker.localhost"
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
     networks:
       - traefik_webgateway
   # prometh: # This container is for displaying metrics
