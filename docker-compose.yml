@@ -9,7 +9,8 @@ services:
       - "--api.insecure=true" 
       - "--providers.docker=true"
       - "--log.level=INFO"
-      - "--providers.file.directory=./traefik.toml" 
+      # - "--providers.file.filename=traefik.toml"
+      # - "--providers.file.directory=traefik.toml" 
       - "--entrypoints.web.address=:80"
     # --metrics.prometheus.buckets=[0.1,0.3,1.2,5.0] --metrics.prometheus.entrypoint="metrics"
     ports:

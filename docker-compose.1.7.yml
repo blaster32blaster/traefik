@@ -1,0 +1,28 @@
+# working - were going to want to set up ssl here
+version: '3.0'
+services:
+  reverse-proxy:
+    image: traefik:v1.7.16
+    container_name: traefik
+    command: --api --docker --logLevel=INFO   
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # - ./traefik.toml:/etc/traefik/traefik.toml
+      - /dev/null:/traefik.toml
+    networks:
+      - traefik_webgateway
+    restart:
+      always
+  whoami: # This container is for debugging purposes only, remove before real use
+    image: containous/whoami # A container that exposes an API to show its IP address
+    labels:
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+    networks:
+      - traefik_webgateway
+networks:
+  traefik_webgateway:
+    external: true
