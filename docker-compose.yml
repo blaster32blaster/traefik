@@ -4,47 +4,108 @@ services:
   reverse-proxy:
     image: traefik:v2.0
     container_name: traefik
-    # command: --api --docker --logLevel=INFO   
     command: 
       - "--api.insecure=true" 
       - "--providers.docker=true"
       - "--log.level=INFO"
-      # - "--providers.file.filename=traefik.toml"
-      # - "--providers.file.directory=traefik.toml" 
+      - "--metrics=true"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
       - "--entrypoints.web.address=:80"
-    # --metrics.prometheus.buckets=[0.1,0.3,1.2,5.0] --metrics.prometheus.entrypoint="metrics"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+      - "--tracing=true"
+      - "--tracing.jaeger=true"
+      - "--tracing.jaeger.samplingType='const'"
+      - "--tracing.spanNameLimit=150"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
       - "8082:8082"
+      - "9090:9090"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # - ./traefik.toml:/etc/traefik/traefik.toml
       # - /dev/null:/traefik.toml
     networks:
       - traefik_webgateway
+      - internal
     restart:
       always
   whoami: # This container is for debugging purposes only, remove before real use
     image: containous/whoami # A container that exposes an API to show its IP address
     labels:
-      # - "traefik.http.routers.router0.rule=Host(`whoami.docker.localhost`)"
-      # - "traefik.frontend.rule=Host:whoami.docker.localhost"
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
       - "traefik.http.routers.whoami.entrypoints=web"
     networks:
       - traefik_webgateway
-  # prometh: # This container is for displaying metrics
-  #   image: prom/prometheus # metric package
-  #   # volumes:
-  #     # - ./prometheus/:/etc/prometheus/
-  #     # - prometheus_data:/prometheus
-  #   labels:
-  #     - "traefik.http.routers.router0.rule=Host(`prometh.docker.localhost`)"
-  #   networks:
-  #     - traefik_webgateway  
+  prometh: # This container is for harvesting metrics
+    image: prom/prometheus:v2.1.0 # metric package
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometh.rule=Host(`pro.docker.localhost`)"
+      - "traefik.http.routers.prometh.entrypoints=web"
+    networks:
+      - traefik_webgateway
+      - internal  
+    restart:
+      always
+    stdin_open: 
+      true
+    tty: 
+      true
+  grafana: # this gives us fancy dashboards etc ...
+    image: grafana/grafana
+    depends_on:
+      - prometh
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    networks:
+      - traefik_webgateway
+      - internal
+    user: "104"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+    restart:
+      always
+  jaeger: # for tracing, helps to debug
+    image: jaegertracing/all-in-one:1.11
+    environment:
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+    labels:
+    #  - traefik.enable=true
+    #  - traefik.port=16686
+     - "traefik.enable=true"
+     - "traefik.http.routers.jaeger.rule=Host(`jaeger.docker.localhost`)"
+     - "traefik.http.routers.jaeger.entrypoints=web"
 networks:
   traefik_webgateway:
     external: true
+  internal:
+    external: true
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
