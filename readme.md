@@ -1,21 +1,22 @@
 # Docker for local Development
 
-## 1 : Install and configure Docker for Windows
+## 1 : Install and configure Docker for your operating system
 
-Navigate to Docker - https://docs.docker.com/docker-for-windows/install/
+Navigate to Docker - <https://docs.docker.com/docker-for-windows/install/>
 
-## 2 : Clone Docker Traefik Repository
+## 2 : Create Docker Networks
+
+    - run command : docker create network traefik_webgateway 
+    - run command : docker create network internal 
+    - this is to allow the containers to communicate, if this gets removed, recreate it.
+
+## 3 : Clone Docker Traefik Repository
 
 ### Clone and start traefik
 
     - git clone https://github.com/blaster32blaster/traefik
     - cd into Traefik directory
     - docker-compose up / docker-compose up -d
-
-## 3 : Create Docker Network
-
-    - run command : docker create network traefik_webgateway 
-    - this is to allow the containers to communicate, if this gets removed, recreate it.
 
 ## 4 : Setup Docker for Repositories
 
@@ -31,4 +32,9 @@ Navigate to Docker - https://docs.docker.com/docker-for-windows/install/
 ## 6 : @Todo
 
     -   add ssl here and to other repos
-    -   work out the Oracle database requirements
+    -   internal network should not be external
+    -   THIS IS VERY MUCH A WIP, the traefik portion works fine for local development, but all the supporting features still need work.  not for production
+
+## Thanks
+
+    - thanks to https://github.com/vegasbrianc for his great work on traefik with prometheus. His hard work gave me a good starting point, allowing for me to adapt his work to traefik 2.0

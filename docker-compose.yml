@@ -84,23 +84,24 @@ services:
     restart:
       always
   jaeger: # for tracing, helps to debug
-    image: jaegertracing/all-in-one:1.11
-    environment:
-      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    image: jaegertracing/all-in-one:1.14
     ports:
-      - "5775:5775/udp"
-      - "6831:6831/udp"
-      - "6832:6832/udp"
+      - "6832:6832"
       - "5778:5778"
       - "16686:16686"
       - "14268:14268"
       - "9411:9411"
     labels:
-    #  - traefik.enable=true
-    #  - traefik.port=16686
+     - "traefik.port=16686"
      - "traefik.enable=true"
+     - "--entrypoints.web.address=:16686"
      - "traefik.http.routers.jaeger.rule=Host(`jaeger.docker.localhost`)"
      - "traefik.http.routers.jaeger.entrypoints=web"
+    networks:
+      - traefik_webgateway
+      - internal   
+    environment: 
+      COLLECTOR_ZIPKIN_HTTP_PORT: 9411    
 networks:
   traefik_webgateway:
     external: true
